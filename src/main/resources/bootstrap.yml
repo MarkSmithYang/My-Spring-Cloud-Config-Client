@@ -1,0 +1,54 @@
+#服务端口设置
+server:
+  port: 7070
+
+#spring相关的配置
+spring:
+  application:
+    name: config-client-server
+  #服务的环境
+  profiles:
+    active: dev
+  #配置中心(云配置)相关信息
+  cloud:
+    config:
+      #启用服务发现
+      discovery:
+        enabled: true
+        service-id: config-server
+      #配置文件前缀(这里配置的name+profile为我们要读的配置文件 即 config-server-dev）
+      name: config-server
+      profile: dev
+      #访问的时候需要在最后加/master来指明标签
+      #label: master
+    bus:
+      #开启消息跟踪
+      trace:
+        enabled: true
+
+  #中间件rabbitmq的配置,实测这个配置是必要的,否则配置中心的刷新不会生效(刷新传递不过来,因为没有连接消息代理(消息中间件)rabbitmq)
+  rabbitmq:
+    host: 192.168.2.51
+    port: 5672
+    username: guest
+    password: guest
+
+#eureka的相关配置
+eureka:
+  client:
+    service-url:
+      #配置服务中心(可配置多个,用逗号隔开)
+      defaultZone: http://localhost:8080/eureka-server/eureka/
+
+#logback日志配置
+logging:
+  file: log/${spring.application.name}.log
+
+#如果需要手动去刷新配置,需要引入actuator依赖,还需要暴露refresh端点,并且post访问/actuator/refresh
+#如果是用的消息总线,把配置中心服务引入bus依赖,并且使用webhooks(钩子)更新config-server的配置,刷新路径/actuator/bus-refresh,
+#和客户端刷新的方式一样,只是使用消息总线的时候,只需在配置服务端做服务的刷新即可,而不用每个客户端去刷新
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["info","health","bus-refresh"]
