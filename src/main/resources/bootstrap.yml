@@ -28,7 +28,7 @@ spring:
 
   #中间件rabbitmq的配置,实测这个配置是必要的,否则配置中心的刷新不会生效(刷新传递不过来,因为没有连接消息代理(消息中间件)rabbitmq)
   rabbitmq:
-    host: 192.168.2.51
+    host: localhost
     port: 5672
     username: guest
     password: guest
